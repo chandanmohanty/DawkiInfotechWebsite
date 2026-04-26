@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(grep -oE \"client-slider-2[^\\)]{1,300}\" \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(sed -i 's|client-slider-2\",{slidesPerView:\"auto\",spaceBetween:0,freemode:!0,centeredSlides:!0,loop:!0,speed:5e3,allowTouchMove:!1,autoplay:{delay:1,disableOnInteraction:!0}}|client-slider-2\",{slidesPerView:\"auto\",spaceBetween:40,loop:!0,speed:4e3,allowTouchMove:!1,freeMode:!0,autoplay:{delay:0,disableOnInteraction:!1,pauseOnMouseEnter:!1}}|' \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(grep -c \"freeMode:!0,autoplay:{delay:0\" \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(grep -oE 'Empowering Growth with Transformation and[^\"]{1,100}' \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(grep -oE '.{50}Committed to delivering transformative solutions[^\"]{0,90}' \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(grep -oE '.{20}banner-link[^}]{0,250}' \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(grep -oE '.{20}banner-link[^}]{0,400}' \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(grep -oE 'banner-link[^!]{0,200}' \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(grep -oE 'banner-shape[^}]{0,150}' \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(grep -oE '.{60}lasting partnerships\\\\.\\\\\"[^!]{0,200}' \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/build/assets/welcome-C8J_0F_J.js\")",
+      "Bash(grep -n \"{/\\\\\\\\* start: \\\\|{/\\\\\\\\* end: \" \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/resources/js/pages/Services/SoftwareEngineering/CustomSoftwareDevelopment.tsx\")",
+      "Bash(awk 'NR<270 || NR>493' \"C:/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/resources/js/pages/Services/SoftwareEngineering/CustomSoftwareDevelopment.tsx\")",
+      "Bash(npx tsc *)",
+      "Bash(awk '{print $5}')",
+      "Bash(php artisan *)",
+      "Bash(ffprobe -v error -show_streams \"/c/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/assets/images/header/demo/dawki_video.mp4\")",
+      "Bash(xxd \"/c/Users/Dell/Desktop/projectss/dawki \\(3\\) 2/public/assets/images/header/demo/dawki_video.mp4\")",
+      "Bash(xxd)",
+      "Read(//c/xampp/**)",
+      "Read(//d//**)",
+      "Bash(tasklist)",
+      "Bash(\"C:/xampp/mysql/bin/mysql.exe\" -u root -e \"CREATE DATABASE IF NOT EXISTS dawki CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; SHOW DATABASES LIKE 'dawki';\")"
+    ]
+  }
+}
