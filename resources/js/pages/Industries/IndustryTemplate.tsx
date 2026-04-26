@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import React from 'react';
-import FrontendLayout from '@/Layouts/FrontendLayout';
+import FrontendLayout from '@/layouts/FrontendLayout';
 
 interface IndustryPageProps {
     title: string;
