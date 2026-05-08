@@ -115,23 +115,28 @@ const Header: React.FC = () => {
 
     const Logo = () => (
         <div className="site_logo">
-            <Link className="logo" href="/">
-                <img src="/assets/images/logos/dawkilogo.png" alt="Dawki Infotech" />
-            </Link>
+            {/* Plain anchor does a hard navigation to "/" — guarantees the
+             * welcome page mounts fresh every time, sidestepping any Inertia
+             * client-side state that was rendering it blank on click. */}
+            <a className="logo" href="/">
+                <img src="/assets/images/header/demo/dawki_logo_transparent.png" alt="Dawki Infotech" />
+            </a>
         </div>
     );
 
     const Navigation = () => (
         <nav id="mobile-menu" className="mainmenu">
             <ul>
+                {/* Plain anchors — Inertia client-side nav was rendering some pages
+                 * blank intermittently. Hard nav guarantees a fresh mount. */}
                 <li className={navCls(isExact('/'))}>
-                    <Link href="/">Home</Link>
+                    <a href="/">Home</a>
                 </li>
                 <li className={navCls(isExact('/about'))}>
-                    <Link href="/about">About</Link>
+                    <a href="/about">About</a>
                 </li>
-                <li className={navCls(inServicesParent, 'has-dropdown')}>
-                    <Link href="/about">Services</Link>
+                <li className={navCls(inServicesParent, 'has-dropdown')} data-mega-trigger="services">
+                    <a href="/about">Services</a>
                     <ul className="sub-menu header__mega-menu mega-menu mega-menu-pages">
                         <li>
                             <div className="mega-menu-wrapper">
@@ -276,14 +281,19 @@ const Header: React.FC = () => {
                     </ul>
                 </li>
                 <li className={navCls(isExact('/portfolio'))}>
-                    <Link href="/portfolio">Portfolio</Link>
+                    <a href="/portfolio">Portfolio</a>
+                </li>
+                <li className={navCls(isExact('/estimate'))}>
+                    <a href="/estimate">Estimate Calculator</a>
                 </li>
                 <li className={navCls(inResourcesParent, 'has-dropdown')}>
                     <a href="#">Resources</a>
                     <ul className="sub-menu">
-                        <li><Link href="/blog">Blog</Link></li>
-                        <li><Link href="/faq">FAQs</Link></li>
-                        <li><Link href="/contact">Contact</Link></li>
+                        {/* All top-level pages use plain anchors — Inertia client-side nav
+                         * was rendering some pages blank intermittently. Hard nav = fresh mount. */}
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/faq">FAQs</a></li>
+                        <li><a href="/contact">Contact</a></li>
                     </ul>
                 </li>
             </ul>
@@ -293,10 +303,11 @@ const Header: React.FC = () => {
     const HeaderActions = () => (
         <div className="header-right-item d-none d-lg-inline-flex">
             <div className="header-button">
-                <Link className="tj-primary-btn" href="/contact">
+                {/* Plain anchor — Inertia client-side nav was rendering Contact blank intermittently. Hard nav guarantees a fresh mount. */}
+                <a className="tj-primary-btn" href="/contact">
                     <span className="btn-text"><span>Contact Us</span></span>
                     <span className="btn-icon"><i className="tji-arrow-right-long"></i></span>
-                </Link>
+                </a>
             </div>
             <div className="menu_bar menu_offcanvas d-none d-lg-inline-flex">
                 <span></span><span></span><span></span>
@@ -342,9 +353,9 @@ const Header: React.FC = () => {
                     <div className="hamburger_inner">
                         <div className="hamburger_top d-flex align-items-center justify-content-between">
                             <div className="hamburger_logo">
-                                <Link href="/" className="mobile_logo">
-                                    <img src="/assets/images/logos/DawkiInfotech_footer.jpg" alt="Logo" />
-                                </Link>
+                                <a href="/" className="mobile_logo">
+                                    <img src="/assets/images/header/demo/dawki_logo_transparent.png" alt="Logo" />
+                                </a>
                             </div>
                             <div className="hamburger_close">
                                 <button className="hamburger_close_btn"><i className="fa-thin fa-times"></i></button>
@@ -366,7 +377,7 @@ const Header: React.FC = () => {
                                 </div>
                                 <div className="contact-item">
                                     <span className="subtitle">Location</span>
-                                    <span className="contact-link">LGF, L-30B, Block H 6, Block L, Malviya Nagar, New Delhi, Delhi 110017</span>
+                                    <span className="contact-link">Layak ram Complex, B-222, Main Market Rd, Badarpur Village, Badarpur, New Delhi, Delhi 110044</span>
                                 </div>
                             </div>
                         </div>
@@ -392,9 +403,9 @@ const Header: React.FC = () => {
                     <div className="hamburger_inner">
                         <div className="hamburger_top d-flex align-items-center justify-content-between">
                             <div className="hamburger_logo">
-                                <Link href="/" className="mobile_logo">
-                                    <img src="/assets/images/logos/dawkilogo.png" alt="Logo" />
-                                </Link>
+                                <a href="/" className="mobile_logo">
+                                    <img src="/assets/images/header/demo/dawki_logo_transparent.png" alt="Logo" />
+                                </a>
                             </div>
                             <div className="hamburger_close">
                                 <button className="hamburger_close_btn"><i className="fa-thin fa-times"></i></button>
@@ -416,7 +427,7 @@ const Header: React.FC = () => {
                                 </div>
                                 <div className="contact-item">
                                     <span className="subtitle">Location</span>
-                                    <span className="contact-link">LGF, L-30B, Block H 6, Block L, Malviya Nagar, New Delhi, Delhi 110017</span>
+                                    <span className="contact-link">Layak ram Complex, B-222, Main Market Rd, Badarpur Village, Badarpur, New Delhi, Delhi 110044</span>
                                 </div>
                             </div>
                         </div>

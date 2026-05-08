@@ -93,6 +93,33 @@ export default function FrontendLayout({ children }: PropsWithChildren) {
                     <Footer />
                 </div>
             </div>
+
+            {/* Floating Estimate Calculator FAB — appears on every page.
+             * Plain anchor (hard nav) so the /estimate page mounts fresh. */}
+            <a
+                href="/estimate"
+                className="dawki-est-fab"
+                aria-label="Open the project cost estimate calculator"
+            >
+                <span className="dawki-est-fab-pulse" aria-hidden="true"></span>
+                <span className="dawki-est-fab-pulse" aria-hidden="true"></span>
+                <span className="dawki-est-fab-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="2" />
+                        <line x1="8" y1="6" x2="16" y2="6" />
+                        <line x1="8" y1="10" x2="10" y2="10" />
+                        <line x1="13" y1="10" x2="16" y2="10" />
+                        <line x1="8" y1="14" x2="10" y2="14" />
+                        <line x1="13" y1="14" x2="16" y2="14" />
+                        <line x1="8" y1="18" x2="16" y2="18" />
+                    </svg>
+                </span>
+                <span className="dawki-est-fab-text">
+                    <strong>Estimate Calculator</strong>
+                    <span>Get a live quote</span>
+                </span>
+                <span className="dawki-est-fab-badge" aria-hidden="true">NEW</span>
+            </a>
         </>
     );
 }

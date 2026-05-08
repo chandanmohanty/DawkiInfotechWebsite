@@ -2,14 +2,15 @@ import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import FrontendLayout from '@/layouts/FrontendLayout';
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
+import { CLIENT_LOGOS } from '@/lib/clientLogos';
 
 /* ============================================================================
- * ContactClientFlipGrid — auto-flipping client logo grid (smaller version)
+ * ContactClientFlipGrid — compact version (8 cells) of the auto-flipping
+ * client logo grid. Pool comes from the shared module so adding logos
+ * once flows through every page.
  * ============================================================================ */
-const CONTACT_LOGOS = [3, 6, 7, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 25, 27, 28];
-
 const ContactClientFlipGrid: React.FC = () => {
-    const [cellLogos, setCellLogos] = useState<number[]>(() => CONTACT_LOGOS.slice(0, 8));
+    const [cellLogos, setCellLogos] = useState<string[]>(() => CLIENT_LOGOS.slice(0, 8));
     const reduced = useReducedMotion();
 
     useEffect(() => {
@@ -18,10 +19,18 @@ const ContactClientFlipGrid: React.FC = () => {
             setCellLogos((prev) => {
                 const next = [...prev];
                 const cellIdx = Math.floor(Math.random() * next.length);
-                let candidate = CONTACT_LOGOS[Math.floor(Math.random() * CONTACT_LOGOS.length)];
+
+                /* No two cells should ever show the same logo at the same
+                 * time. Build the candidate pool by removing every logo
+                 * currently in another cell. */
+                const inUse = new Set(next.filter((_, i) => i !== cellIdx));
+                const available = CLIENT_LOGOS.filter((l) => !inUse.has(l));
+                if (available.length === 0) return prev;
+
+                let candidate = available[Math.floor(Math.random() * available.length)];
                 let attempts = 0;
-                while (candidate === next[cellIdx] && attempts < 5) {
-                    candidate = CONTACT_LOGOS[Math.floor(Math.random() * CONTACT_LOGOS.length)];
+                while (candidate === next[cellIdx] && attempts < 5 && available.length > 1) {
+                    candidate = available[Math.floor(Math.random() * available.length)];
                     attempts++;
                 }
                 next[cellIdx] = candidate;
@@ -33,13 +42,13 @@ const ContactClientFlipGrid: React.FC = () => {
 
     return (
         <div className="dawki-contact-flipgrid">
-            {cellLogos.map((logoNum, cellIdx) => (
+            {cellLogos.map((logoUrl, cellIdx) => (
                 <div className="dawki-contact-flipcell" key={cellIdx}>
                     <AnimatePresence mode="wait">
                         <motion.img
-                            key={logoNum}
-                            src={`/assets/images/clients_logo/${logoNum}.jpg`}
-                            alt={`Client ${logoNum}`}
+                            key={logoUrl}
+                            src={logoUrl}
+                            alt={`Client ${cellIdx + 1}`}
                             loading="lazy"
                             decoding="async"
                             initial={{ opacity: 0, rotateY: 90, scale: 0.8 }}
@@ -402,7 +411,7 @@ export default function Contact() {
                         </Reveal>
                         <div className="dawki-contact-info-cards">
                             {[
-                                { icon: '📍', title: 'Our Location', body: <p>LGF, L-30B, Block H 6, Block L, Malviya Nagar, New Delhi, Delhi 110017</p> },
+                                { icon: '📍', title: 'Our Location', body: <p>Layak ram Complex, B-222, Main Market Rd, Badarpur Village, Badarpur, New Delhi, Delhi 110044</p> },
                                 { icon: '✉️', title: 'Email Us', body: (
                                     <ul>
                                         <li><a href="mailto:info@dawkiinfotech.com">info@dawkiinfotech.com</a></li>

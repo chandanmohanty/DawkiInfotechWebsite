@@ -25,6 +25,10 @@ Route::get('/portfolio', function () {
     return Inertia::render('Portfolio');
 })->name('portfolio');
 
+Route::get('/estimate', function () {
+    return Inertia::render('Estimate');
+})->name('estimate');
+
 // Services Routes
 Route::prefix('services')->group(function () {
     // Software Engineering
@@ -138,6 +142,8 @@ Route::prefix('panel')->group(function () {
     // Auth routes (accessible without authentication)
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('panel.login');
     Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('panel.register');
+    Route::post('/register', [AuthController::class, 'register']);
     Route::post('/logout', [AuthController::class, 'logout'])->name('panel.logout');
 
     // Protected routes (require authentication)
@@ -163,9 +169,6 @@ Route::prefix('panel')->group(function () {
     });
 });
 
-// Frontend Blog Routes
-// Static blog index — bypass BlogController until posts DB table exists.
-Route::get('/blog', function () {
-    return Inertia::render('Blog/Index');
-})->name('blog.index');
+// Frontend Blog Routes — backed by the real posts DB table.
+Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');

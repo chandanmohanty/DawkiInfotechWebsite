@@ -30,17 +30,37 @@ export default function ImageUpload({ value, onChange, label, error, accept = 'i
         formData.append('image', file);
 
         try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            if (!csrfToken) {
+            /* The <meta name="csrf-token"> tag is generated once by panel.blade.php
+             * and goes STALE after Inertia SPA navigation (login regenerates the
+             * session, so the token changes — but the meta tag never re-renders
+             * because Inertia only swaps page JSON, not the full HTML).
+             *
+             * The reliable source is Laravel's XSRF-TOKEN cookie, which is
+             * refreshed on every response. We send it back via the
+             * X-XSRF-TOKEN header — VerifyCsrfToken accepts this. We fall
+             * back to the meta tag only if the cookie isn't readable. */
+            const xsrfFromCookie = document.cookie
+                .split('; ')
+                .find((row) => row.startsWith('XSRF-TOKEN='))
+                ?.split('=')[1];
+            const xsrfToken = xsrfFromCookie ? decodeURIComponent(xsrfFromCookie) : null;
+
+            const metaCsrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            if (!xsrfToken && !metaCsrf) {
                 throw new Error('CSRF token not found');
             }
 
+            const headers: Record<string, string> = {
+                'X-Requested-With': 'XMLHttpRequest',
+                Accept: 'application/json',
+            };
+            if (xsrfToken) headers['X-XSRF-TOKEN'] = xsrfToken;
+            if (metaCsrf)  headers['X-CSRF-TOKEN'] = metaCsrf;
+
             const response = await fetch('/panel/blog/upload-image', {
                 method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
+                headers,
                 credentials: 'same-origin',
                 body: formData,
             });

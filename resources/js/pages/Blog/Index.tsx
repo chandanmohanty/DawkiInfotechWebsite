@@ -1,52 +1,71 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import FrontendLayout from '@/layouts/FrontendLayout';
 import React from 'react';
 import { motion } from 'framer-motion';
 
 /* ===========================================================================
- * Static blog cards — replace href with real article slugs once those pages exist.
+ * Types — matches the shape returned by BlogController@index
  * =========================================================================== */
-type BlogCard = {
-    title: string;
-    date: string;
-    image: string;
-    fallback: string;
-    cat: string;
-    catColor: string;
-    href: string;
+type Category = {
+    id: number;
+    name: string;
+    slug: string;
+    color?: string | null;
 };
 
-const POSTS: BlogCard[] = [
-    {
-        title: 'Why Telegram Shines — A Dawki Infotech Perspective',
-        date: 'August 28, 2025',
-        image: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?auto=format&fit=crop&w=900&q=80',
-        fallback: '/assets/images/blog/blog-1.webp',
-        cat: 'Messaging',
-        catColor: '#0088cc',
-        href: '#',
-    },
-    {
-        title: 'Key Elements of a High-Impact Sales Development Process — The Dawki Infotech Way',
-        date: 'August 28, 2025',
-        image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80',
-        fallback: '/assets/images/blog/blog-2.webp',
-        cat: 'Sales',
-        catColor: '#22c55e',
-        href: '#',
-    },
-    {
-        title: 'How Data Analytics Is Transforming the FinTech Landscape — A Dawki Infotech Perspective',
-        date: 'August 28, 2025',
-        image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=900&q=80',
-        fallback: '/assets/images/blog/blog-3.webp',
-        cat: 'FinTech',
-        catColor: '#a855f7',
-        href: '#',
-    },
-];
+type Tag = { id: number; name: string; slug: string };
+
+type Post = {
+    id: number;
+    title: string;
+    slug: string;
+    excerpt: string | null;
+    featured_image: string | null;
+    published_at: string | null;
+    author_name: string | null;
+    category: Category | null;
+    tags: Tag[];
+};
+
+type Paginator<T> = {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    links: { url: string | null; label: string; active: boolean }[];
+};
+
+type PageProps = {
+    posts: Paginator<Post>;
+    categories?: (Category & { posts_count: number })[];
+    recentPosts?: Post[];
+    filters?: { category?: string; tag?: string; search?: string };
+};
+
+/* Convert "2026-05-05T00:00:00.000000Z" → "May 5, 2026" */
+const fmtDate = (iso: string | null): string => {
+    if (!iso) return '';
+    try {
+        return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch {
+        return iso;
+    }
+};
+
+/* Stable category color from the category id (cycles through a palette). */
+const CAT_COLORS = ['#5b9eff', '#22c55e', '#a855f7', '#ec4899', '#f97316', '#06b6d4', '#fbbf24', '#ef4444'];
+const colorForCategory = (cat?: Category | null): string => {
+    if (!cat) return '#5b9eff';
+    if (cat.color) return cat.color;
+    return CAT_COLORS[cat.id % CAT_COLORS.length];
+};
+
+const FALLBACK_IMG = '/assets/images/blog/blog-1.webp';
 
 export default function BlogIndex() {
+    const { props } = usePage<PageProps>();
+    const posts: Post[] = props.posts?.data ?? [];
+    const paginator = props.posts;
+
     return (
         <FrontendLayout>
             <Head title="Blog — Dawki Infotech" />
@@ -89,60 +108,115 @@ export default function BlogIndex() {
 
                 {/* Blog cards */}
                 <section className="dawki-blog-list">
-                    <motion.div
-                        className="dawki-blog-grid"
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, margin: '-80px' }}
-                        variants={{
-                            hidden: {},
-                            show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
-                        }}
-                    >
-                        {POSTS.map((post) => (
-                            <motion.article
-                                key={post.title}
-                                className="dawki-blog-card"
-                                variants={{
-                                    hidden: { opacity: 0, y: 30 },
-                                    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } },
-                                }}
-                            >
-                                <Link href={post.href} className="dawki-blog-card-thumb">
-                                    <span
-                                        className="dawki-blog-card-cat"
-                                        style={{ ['--cat-color' as string]: post.catColor }}
-                                    >
-                                        {post.cat}
-                                    </span>
-                                    <img
-                                        src={post.image}
-                                        alt={post.title}
-                                        loading="lazy"
-                                        decoding="async"
-                                        onError={(e) => {
-                                            const img = e.currentTarget as HTMLImageElement;
-                                            if (img.src !== post.fallback) img.src = post.fallback;
+                    {posts.length === 0 ? (
+                        <div className="container" style={{ textAlign: 'center', padding: '40px 20px' }}>
+                            <p style={{ fontSize: 18, color: '#64748b' }}>
+                                No published posts yet. Check back soon — fresh perspectives are on the way.
+                            </p>
+                        </div>
+                    ) : (
+                        <motion.div
+                            className="dawki-blog-grid"
+                            initial="hidden"
+                            whileInView="show"
+                            viewport={{ once: true, margin: '-80px' }}
+                            variants={{
+                                hidden: {},
+                                show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+                            }}
+                        >
+                            {posts.map((post) => {
+                                const href = `/blog/${post.slug}`;
+                                const catColor = colorForCategory(post.category);
+                                const catLabel = post.category?.name ?? 'Article';
+                                const img = post.featured_image || FALLBACK_IMG;
+
+                                return (
+                                    <motion.article
+                                        key={post.id}
+                                        className="dawki-blog-card"
+                                        variants={{
+                                            hidden: { opacity: 0, y: 30 },
+                                            show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } },
                                         }}
+                                    >
+                                        <Link href={href} className="dawki-blog-card-thumb">
+                                            <span
+                                                className="dawki-blog-card-cat"
+                                                style={{ ['--cat-color' as string]: catColor }}
+                                            >
+                                                {catLabel}
+                                            </span>
+                                            <img
+                                                src={img}
+                                                alt={post.title}
+                                                loading="lazy"
+                                                decoding="async"
+                                                onError={(e) => {
+                                                    const el = e.currentTarget as HTMLImageElement;
+                                                    if (el.src !== window.location.origin + FALLBACK_IMG) el.src = FALLBACK_IMG;
+                                                }}
+                                            />
+                                        </Link>
+                                        <div className="dawki-blog-card-content">
+                                            <span className="dawki-blog-card-date">{fmtDate(post.published_at)}</span>
+                                            <h3 className="dawki-blog-card-title">
+                                                <Link href={href}>{post.title}</Link>
+                                            </h3>
+                                            {post.excerpt && (
+                                                <p className="dawki-blog-card-excerpt" style={{ color: '#64748b', fontSize: 14, lineHeight: 1.55, margin: '4px 0 0' }}>
+                                                    {post.excerpt.length > 140 ? post.excerpt.slice(0, 140) + '…' : post.excerpt}
+                                                </p>
+                                            )}
+                                            <span className="dawki-blog-card-spacer"></span>
+                                            <Link href={href} className="dawki-blog-card-cta">
+                                                Read more
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                                    <polyline points="12 5 19 12 12 19" />
+                                                </svg>
+                                            </Link>
+                                        </div>
+                                    </motion.article>
+                                );
+                            })}
+                        </motion.div>
+                    )}
+
+                    {/* Pagination */}
+                    {paginator && paginator.last_page > 1 && (
+                        <div className="container" style={{ marginTop: 40, display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            {paginator.links.map((link, i) => {
+                                const label = link.label.replace(/&laquo;|&raquo;/g, '').trim() || (i === 0 ? '‹' : '›');
+                                if (!link.url) {
+                                    return (
+                                        <span
+                                            key={i}
+                                            style={{ padding: '8px 14px', borderRadius: 8, color: '#94a3b8', background: '#f1f5f9', fontSize: 14 }}
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
+                                    );
+                                }
+                                return (
+                                    <Link
+                                        key={i}
+                                        href={link.url}
+                                        style={{
+                                            padding: '8px 14px',
+                                            borderRadius: 8,
+                                            background: link.active ? 'linear-gradient(135deg, #5b9eff, #a855f7)' : '#ffffff',
+                                            color: link.active ? '#ffffff' : '#0a1628',
+                                            border: '1px solid ' + (link.active ? 'transparent' : 'rgba(15,23,42,0.10)'),
+                                            fontSize: 14,
+                                            fontWeight: 600,
+                                            textDecoration: 'none',
+                                        }}
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
                                     />
-                                </Link>
-                                <div className="dawki-blog-card-content">
-                                    <span className="dawki-blog-card-date">{post.date}</span>
-                                    <h3 className="dawki-blog-card-title">
-                                        <Link href={post.href}>{post.title}</Link>
-                                    </h3>
-                                    <span className="dawki-blog-card-spacer"></span>
-                                    <Link href={post.href} className="dawki-blog-card-cta">
-                                        Read more
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                            <line x1="5" y1="12" x2="19" y2="12" />
-                                            <polyline points="12 5 19 12 12 19" />
-                                        </svg>
-                                    </Link>
-                                </div>
-                            </motion.article>
-                        ))}
-                    </motion.div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </section>
 
                 {/* CTA */}

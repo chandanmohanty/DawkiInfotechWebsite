@@ -8,7 +8,7 @@
     <meta name="description" content="">
 
     <!-- Site Title -->
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+    <title inertia>{{ config('app.name', 'Dawki Infotech') }}</title>
 
     <!-- Place favicon.ico in the root directory -->
     <link rel="shortcut icon" type="image/x-icon" href="/assets/images/icons/favicon.png">
@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="/assets/css/venobox.min.css">
     <link rel="stylesheet" href="/assets/css/odometer-theme-default.css">
     <link rel="stylesheet" href="/assets/css/meanmenu.css">
-    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/main.css?v={{ filemtime(public_path('assets/css/main.css')) }}">
     @viteReactRefresh
     @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
     @inertiaHead

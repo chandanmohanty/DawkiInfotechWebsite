@@ -262,7 +262,8 @@ export default function SaaSApplication() {
             heroTitleStart="SaaS Application"
             heroTitleHighlight="Development"
             heroSubtitle="Multi-tenant SaaS products from MVP to scale — built with billing, subscriptions, analytics, and admin tools out of the box."
-            heroVideoSrc="https://amazedveku.de/images/saas.mp4"
+            // heroVideoSrc="https://amazedveku.de/images/saas.mp4"
+            heroVideoSrc="/assets/images/header/demo/saas_app.mp4"
             featuresPill="Built for SaaS"
             featuresTitleStart="Software-as-a-Service"
             featuresTitleHighlight="Done The Right Way"
@@ -377,43 +378,37 @@ export default function SaaSApplication() {
             googleReviews={[
                 {
                     name: 'Connor Vasquez',
-                    role: 'Founder & CEO, Trailpoint Analytics',
-                    rating: 5,
+                     rating: 5,
                     date: '2 months ago',
                     text: 'We went from idea to first paying customers in 11 weeks. Dawki built our MVP, billing, onboarding, and admin dashboard — and the codebase is clean enough that our internal team picked it up without friction.',
                 },
                 {
                     name: 'Mira Saldana',
-                    role: 'Co-founder, FlowDesk SaaS',
-                    rating: 5,
+                     rating: 5,
                     date: '4 months ago',
                     text: 'Stripe billing with proration, trials, and dunning that actually handles edge cases. Their multi-tenant Postgres design saved us a re-architecture two years down the line.',
                 },
                 {
-                    name: 'Owen Bradshaw',
-                    role: 'CTO, Pulsemark Labs',
-                    rating: 5,
+                    name: 'Mukesh Biswas',
+                     rating: 5,
                     date: '6 months ago',
-                    text: 'They added SSO, SCIM, and audit logs in time for our first enterprise deal — a $400K ARR contract that we would have lost without those features. The engagement paid for itself five times over.',
+                    text: 'They added SSO, SCIM, and audit logs in time for our first enterprise deal — a 400K ARR contract that we would have lost without those features. The engagement paid for itself five times over.',
                 },
                 {
                     name: 'Niamh O\'Connell',
-                    role: 'Head of Product, Quillstack',
-                    rating: 5,
+                     rating: 5,
                     date: '3 months ago',
                     text: 'Onboarding flows that lifted trial-to-paid by 31% in the first quarter. The activation checklist + empty states + tooltips combo is the cleanest implementation I\'ve seen.',
                 },
                 {
                     name: 'Rohan Pillai',
-                    role: 'VP Engineering, FleetForge',
-                    rating: 5,
+                     rating: 5,
                     date: '5 months ago',
                     text: 'Public API + webhooks + OAuth — shipped with such polished docs that our customers built integrations on day one. Zero support tickets about the API itself.',
                 },
                 {
-                    name: 'Hanna Lindgren',
-                    role: 'Founder, Northstack',
-                    rating: 5,
+                    name: 'Hina Lindgren',
+                     rating: 5,
                     date: '7 months ago',
                     text: 'White-label SaaS with full theming and per-tenant subdomains. Our resellers ship branded versions in hours instead of weeks. Best product investment we\'ve made.',
                 },
