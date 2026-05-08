@@ -14,12 +14,15 @@ const officeItem: Variants = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } },
 };
 
-/* Our Offices — 4 cards row above main footer */
+/* Our Offices — 4 cards row above main footer.
+ * Flag images come from flagcdn.com (free, fast, served as PNG/WebP) so they
+ * render reliably on Windows browsers where flag emojis fall back to plain
+ * country codes (US, GB, AE, IN). */
 const OFFICES = [
-    { flag: '🇺🇸', city: 'New York, USA', address: '5900 Balcones Drive, STE 100, Austin, TX 78731' },
-    { flag: '🇬🇧', city: 'London, UK', address: '167-169 Great Portland Street, 5th Floor, London W1W 5PF' },
-    { flag: '🇦🇪', city: 'Dubai, UAE', address: 'Dubai Silicon Oasis (DSO), JLT Jumeirah Lakes Towers' },
-    { flag: '🇮🇳', city: 'Delhi, India', address: 'Badarpur, New Delhi, Delhi 110044' },
+    { flag: 'https://flagcdn.com/w80/us.png', code: 'US', city: 'New York, USA', address: '5900 Balcones Drive, STE 100, Austin, TX 78731' },
+    { flag: 'https://flagcdn.com/w80/gb.png', code: 'GB', city: 'London, UK', address: '167-169 Great Portland Street, 5th Floor, London W1W 5PF' },
+    { flag: 'https://flagcdn.com/w80/ae.png', code: 'AE', city: 'Dubai, UAE', address: 'Dubai Silicon Oasis (DSO), JLT Jumeirah Lakes Towers' },
+    { flag: 'https://flagcdn.com/w80/in.png', code: 'IN', city: 'Delhi, India', address: 'Badarpur, New Delhi, Delhi 110044' },
 ];
 
 const FooterOffices: React.FC = () => {
@@ -36,7 +39,16 @@ const FooterOffices: React.FC = () => {
                 {OFFICES.map((o, i) => (
                     <Item key={i} className="dawki-footer-office-card" variants={reduced ? undefined : officeItem}>
                         <div className="dawki-footer-office-head">
-                            <span className="dawki-footer-office-flag">{o.flag}</span>
+                            <span className="dawki-footer-office-flag">
+                                <img
+                                    src={o.flag}
+                                    alt={`${o.code} flag`}
+                                    loading="lazy"
+                                    decoding="async"
+                                    width={28}
+                                    height={20}
+                                />
+                            </span>
                             <h4 className="dawki-footer-office-city">{o.city}</h4>
                         </div>
                         <p className="dawki-footer-office-address">{o.address}</p>
@@ -63,7 +75,7 @@ const Footer: React.FC = () => {
                             <div className="footer-widget footer-col-1 wow fadeInUp" data-wow-delay=".1s">
                                 <div className="footer-logo">
                                     <Link href="/">
-                                        <img src="/assets/images/logos/DawkiInfotech_footer.jpg" alt="Logos" />
+                                        <img src="/assets/images/header/demo/dawki_logo_transparent.png" alt="Logos" />
                                     </Link>
                                 </div>
                                 <div className="footer-text">
@@ -131,10 +143,13 @@ const Footer: React.FC = () => {
                             <div className="footer-widget widget-contact footer-col-4 widget-nav-menu wow fadeInUp" data-wow-delay=".5s">
                                 <h5 className="title">Resources</h5>
                                 <ul>
-                                    <li><Link href="/blog">Blog</Link></li>
-                                    <li><Link href="/faq">FAQs</Link></li>
-                                    <li><Link href="/about">About Us</Link></li>
-                                    <li><Link href="/contact">Contact</Link></li>
+                                    {/* All top-level pages use plain anchors — Inertia client nav
+                                     * was rendering some pages blank intermittently. Hard nav = fresh mount. */}
+                                      <li><a href="/estimate">Estimate Calculator</a></li>
+                                    <li><a href="/blog">Blog</a></li>
+                                    <li><a href="/faq">FAQs</a></li>
+                                    <li><a href="/about">About Us</a></li>
+                                    <li><a href="/contact">Contact</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -148,7 +163,7 @@ const Footer: React.FC = () => {
                         <div className="col-12">
                             <div className="copyright-content-area">
                                 <div className="copyright-text">
-                                    <p>&copy; 2025&nbsp;<a href="https://dawkiinfotech.com/" target="_blank" rel="noreferrer">Dawki Infotech Pvt. Ltd.</a> All right reserved</p>
+                                    <p>&copy; 2026&nbsp;<a href="https://dawkiinfotech.com/" target="_blank" rel="noreferrer">Dawki Infotech Pvt. Ltd.</a> All right reserved</p>
                                 </div>
                                 <div className="social-links style-3">
                                     <img src="/assets/images/footer/jj-e1754746873354.webp" alt="Image" height="40" />

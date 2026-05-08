@@ -75,6 +75,16 @@ class PostController extends Controller
             $data['read_time'] = max(1, ceil($wordCount / 200)); // Average reading speed: 200 words/min
         }
 
+        // Auto-fill published_at when status is 'published' and the field
+        // is empty — otherwise the public Post::published() scope filters
+        // the row out (it requires published_at <= now(), and NULL never
+        // satisfies that comparison). Without this, an editor who marks
+        // a post Published but leaves the date blank gets a "where did
+        // my post go" surprise.
+        if (($data['status'] ?? null) === 'published' && empty($data['published_at'])) {
+            $data['published_at'] = now();
+        }
+
         $post = Post::create($data);
 
         // Sync tags
@@ -123,6 +133,16 @@ class PostController extends Controller
         if (!isset($data['read_time']) || !$data['read_time']) {
             $wordCount = str_word_count(strip_tags($data['content']));
             $data['read_time'] = max(1, ceil($wordCount / 200));
+        }
+
+        // Auto-fill published_at when transitioning to published status
+        // without an explicit date. Same rationale as in store() — keeps
+        // the public Post::published() scope from accidentally hiding
+        // the post.
+        if (($data['status'] ?? null) === 'published'
+            && empty($data['published_at'])
+            && empty($post->published_at)) {
+            $data['published_at'] = now();
         }
 
         $post->update($data);

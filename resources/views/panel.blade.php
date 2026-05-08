@@ -9,7 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Site Title -->
-    <title inertia>{{ config('app.name', 'Laravel') }} - Admin Panel</title>
+    <title inertia>{{ config('app.name', 'Dawki Infotech') }} - Admin Panel</title>
 
     <!-- Place favicon.ico in the root directory -->
     <link rel="shortcut icon" type="image/x-icon" href="/assets/images/icons/favicon.png">

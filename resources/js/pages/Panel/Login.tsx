@@ -188,7 +188,17 @@ export default function Login() {
                             </div>
                         </form>
 
+                        {/* Sign up link */}
                         <div className="mt-6 text-center">
+                            <p className="text-sm text-gray-600">
+                                Don't have an account?{' '}
+                                <Link href="/panel/register" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                                    Sign up
+                                </Link>
+                            </p>
+                        </div>
+
+                        <div className="mt-3 text-center">
                             <Link
                                 href="/"
                                 className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors inline-flex items-center gap-1"

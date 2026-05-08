@@ -2,16 +2,17 @@ import { Head, Link } from '@inertiajs/react';
 import React from 'react';
 import FrontendLayout from '@/layouts/FrontendLayout';
 import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
+import { CLIENT_LOGOS } from '@/lib/clientLogos';
 
 /* ============================================================================
- * ClientLogoGrid — static grid where each cell auto-flips to a new logo
- * No marquee scrolling. Subtle, organic flip effect on random cells.
+ * ClientLogoGrid — static grid where each cell auto-flips to a new logo.
+ * Pool of logos comes from the shared module so adding new client images
+ * to /assets/images/header/demo/dawki-clients/ flows here automatically.
  * ============================================================================ */
-const ALL_CLIENT_LOGOS = [3, 6, 7, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 25, 27, 28, 30, 31];
-
 const ClientLogoGrid: React.FC = () => {
-    // Initial state — each cell shows logo at its own index
-    const [cellLogos, setCellLogos] = React.useState<number[]>(() => ALL_CLIENT_LOGOS.map((logo) => logo));
+    // Initial state — render up to 18 cells (matches the legacy grid size)
+    const initialCount = Math.min(18, CLIENT_LOGOS.length);
+    const [cellLogos, setCellLogos] = React.useState<string[]>(() => CLIENT_LOGOS.slice(0, initialCount));
     const reduced = useReducedMotion();
 
     React.useEffect(() => {
@@ -21,11 +22,18 @@ const ClientLogoGrid: React.FC = () => {
             setCellLogos((prev) => {
                 const next = [...prev];
                 const cellIdx = Math.floor(Math.random() * next.length);
-                let candidate = ALL_CLIENT_LOGOS[Math.floor(Math.random() * ALL_CLIENT_LOGOS.length)];
-                // Avoid picking the same logo currently shown
+
+                /* Candidate pool = full logo list minus every logo currently
+                 * shown in OTHER cells. Guarantees uniqueness across the
+                 * whole grid — no two cells ever show the same logo. */
+                const inUse = new Set(next.filter((_, i) => i !== cellIdx));
+                const available = CLIENT_LOGOS.filter((l) => !inUse.has(l));
+                if (available.length === 0) return prev;
+
+                let candidate = available[Math.floor(Math.random() * available.length)];
                 let attempts = 0;
-                while (candidate === next[cellIdx] && attempts < 5) {
-                    candidate = ALL_CLIENT_LOGOS[Math.floor(Math.random() * ALL_CLIENT_LOGOS.length)];
+                while (candidate === next[cellIdx] && attempts < 5 && available.length > 1) {
+                    candidate = available[Math.floor(Math.random() * available.length)];
                     attempts++;
                 }
                 next[cellIdx] = candidate;
@@ -37,13 +45,13 @@ const ClientLogoGrid: React.FC = () => {
 
     return (
         <div className="dawki-logo-grid">
-            {cellLogos.map((logoNum, cellIdx) => (
+            {cellLogos.map((logoUrl, cellIdx) => (
                 <div className="dawki-logo-cell" key={cellIdx}>
                     <AnimatePresence mode="wait">
                         <motion.img
-                            key={logoNum}
-                            src={`/assets/images/clients_logo/${logoNum}.jpg`}
-                            alt={`Client ${logoNum}`}
+                            key={logoUrl}
+                            src={logoUrl}
+                            alt={`Client ${cellIdx + 1}`}
                             loading="lazy"
                             decoding="async"
                             initial={{ opacity: 0, rotateY: 90, scale: 0.8 }}
@@ -687,29 +695,49 @@ const About: React.FC = () => {
                     <div className="container">
                         <RevealUp>
                             <div className="dawki-ratings-heading">
-                                <span className="dawki-ratings-pill">
-                                    <span className="dawki-values-dot"></span>
-                                    Reviews & Recognition
-                                </span>
                                 <h2 className="dawki-ratings-title">
-                                    Trusted by Clients with <span>Top Ratings</span>
+                                    Trusted by Clients with Top Ratings
                                 </h2>
-                                <p className="dawki-ratings-subtitle">
-                                    Independent platforms recognize our consistent quality, reliability, and client satisfaction.
-                                </p>
                             </div>
                         </RevealUp>
 
-                        {/* Single composite image with all trust ratings */}
+                        {/* Individual brand logos with rating shown below each card.
+                            URLs are direct image addresses (provided by the user)
+                            so each loads its proper wordmark. */}
                         <RevealUp>
-                            <div className="dawki-ratings-image-wrap">
-                                <img
-                                    loading="lazy"
-                                    decoding="async"
-                                    src="/assets/images/logos/trusted-logoss.png"
-                                    alt="Trusted by clients with top ratings"
-                                    className="dawki-ratings-image"
-                                />
+                            <div className="dawki-ratings-logos">
+                                {[
+                                    { name: 'GoodFirms', src: 'https://www.webomindapps.com/images/Goodfirms-Logo.png', rating: '4.9' },
+                                    { name: 'Google', src: 'https://www.webomindapps.com/images/Google_logo.webp', rating: '4.8' },
+                                    { name: 'Trustpilot', src: 'https://www.webomindapps.com/images/Trustpilot_Logo.png', rating: '4.9' },
+                                    { name: 'Clutch', src: 'https://www.webomindapps.com/images/clutch-logo.png', rating: '4.9' },
+                                    { name: 'TopDevelopers', src: 'https://logo.clearbit.com/topdevelopers.co?size=160', rating: '4.9' },
+                                ].map((logo) => (
+                                    <div className="dawki-ratings-logo-item" key={logo.name}>
+                                        <div className="dawki-ratings-logo-cell">
+                                            <img
+                                                loading="lazy"
+                                                decoding="async"
+                                                src={logo.src}
+                                                alt={`${logo.name} logo`}
+                                                className="dawki-ratings-logo-img"
+                                                onError={(e) => {
+                                                    const img = e.currentTarget;
+                                                    const wrap = img.parentElement;
+                                                    if (!wrap) return;
+                                                    img.style.display = 'none';
+                                                    if (!wrap.querySelector('.dawki-ratings-logo-fallback')) {
+                                                        const fb = document.createElement('span');
+                                                        fb.className = 'dawki-ratings-logo-fallback';
+                                                        fb.textContent = logo.name;
+                                                        wrap.appendChild(fb);
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                        <span className="dawki-ratings-logo-rating">{logo.rating} Rating</span>
+                                    </div>
+                                ))}
                             </div>
                         </RevealUp>
                     </div>
@@ -1179,7 +1207,7 @@ const About: React.FC = () => {
                                     <div className="cta-content">
                                         <h2 className="title title-anim">Let’s Build Future Together.</h2>
                                         <div className="cta-btn wow fadeInUp" data-wow-delay=".6s">
-                                            <a className="tj-primary-btn btn-dark" href="contact.html">
+                                            <a className="tj-primary-btn btn-dark" href="contact">
                                                 <span className="btn-text"><span>Get Started Now</span></span>
                                                 <span className="btn-icon"><i className="tji-arrow-right-long"></i></span>
                                             </a>

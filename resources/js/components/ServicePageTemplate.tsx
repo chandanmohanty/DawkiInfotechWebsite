@@ -1,13 +1,21 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import FrontendLayout from '@/layouts/FrontendLayout';
 
-/* Auto-flipping client logo grid (same pattern as About page) */
-const DEFAULT_CLIENT_LOGOS = [3, 6, 7, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 25, 27, 28, 30, 31];
+import { CLIENT_LOGOS } from '@/lib/clientLogos';
 
-const ClientLogoGrid: React.FC<{ logos?: number[] }> = ({ logos = DEFAULT_CLIENT_LOGOS }) => {
-    const [cellLogos, setCellLogos] = useState<number[]>(() => logos.map((l) => l));
+/* Auto-flipping client logo grid. The pool of logos lives in a shared
+ * module (resources/js/lib/clientLogos.ts) so we can grow it once and
+ * every page picks up the new entries. Cells start at the first N
+ * entries, then every 1.6s a random cell flips to a different random
+ * logo from the pool — guaranteed to differ from what's already shown
+ * in that cell so no cell loops back to the same image. */
+const ClientLogoGrid: React.FC<{ logos?: string[] }> = ({ logos = CLIENT_LOGOS }) => {
+    /* Render up to 18 cells initially (matches the legacy layout). If the
+     * pool has fewer entries we just render whatever's available. */
+    const initialCount = Math.min(18, logos.length);
+    const [cellLogos, setCellLogos] = useState<string[]>(() => logos.slice(0, initialCount));
     const reduced = useReducedMotion();
 
     useEffect(() => {
@@ -16,10 +24,21 @@ const ClientLogoGrid: React.FC<{ logos?: number[] }> = ({ logos = DEFAULT_CLIENT
             setCellLogos((prev) => {
                 const next = [...prev];
                 const cellIdx = Math.floor(Math.random() * next.length);
-                let candidate = logos[Math.floor(Math.random() * logos.length)];
+
+                /* Build the candidate pool = full logo list MINUS every logo
+                 * currently shown in the OTHER cells. This guarantees no two
+                 * cells display the same logo at the same time, even
+                 * mid-animation. The cell being flipped is excluded from the
+                 * "in-use" set so it can be re-used elsewhere if needed. */
+                const inUse = new Set(next.filter((_, i) => i !== cellIdx));
+                const available = logos.filter((l) => !inUse.has(l));
+                if (available.length === 0) return prev; // pool too small
+
+                let candidate = available[Math.floor(Math.random() * available.length)];
+                /* Also avoid no-op flips on the same cell. */
                 let attempts = 0;
-                while (candidate === next[cellIdx] && attempts < 5) {
-                    candidate = logos[Math.floor(Math.random() * logos.length)];
+                while (candidate === next[cellIdx] && attempts < 5 && available.length > 1) {
+                    candidate = available[Math.floor(Math.random() * available.length)];
                     attempts++;
                 }
                 next[cellIdx] = candidate;
@@ -31,13 +50,13 @@ const ClientLogoGrid: React.FC<{ logos?: number[] }> = ({ logos = DEFAULT_CLIENT
 
     return (
         <div className="dawki-logo-grid">
-            {cellLogos.map((logoNum, cellIdx) => (
+            {cellLogos.map((logoUrl, cellIdx) => (
                 <div className="dawki-logo-cell" key={cellIdx}>
                     <AnimatePresence mode="wait">
                         <motion.img
-                            key={logoNum}
-                            src={`/assets/images/clients_logo/${logoNum}.jpg`}
-                            alt={`Client ${logoNum}`}
+                            key={logoUrl}
+                            src={logoUrl}
+                            alt={`Client ${cellIdx + 1}`}
                             loading="lazy"
                             decoding="async"
                             initial={{ opacity: 0, rotateY: 90, scale: 0.8 }}
@@ -136,7 +155,7 @@ export interface ServicePageProps {
     hideTestimonial?: boolean;
 
     showClients?: boolean;
-    clientLogos?: number[];
+    clientLogos?: string[];
     clientsPill?: string;
     clientsHeading?: string;
     clientsHeadingHighlight?: string;
@@ -315,6 +334,41 @@ export default function ServicePageTemplate(props: ServicePageProps) {
         extraSections,
         faqs,
     } = props;
+
+    /* ========================================================================
+     * Contact form ("Drop us a Line Here") — wired to the same /contact
+     * endpoint and persisted into the same `contact_us` table as the main
+     * Contact page. The dropdown values are mapped to the `help_type` enum
+     * accepted by the controller (team / software / design / marketing / others).
+     * ======================================================================== */
+    const { props: pageProps } = usePage<{ flash?: { success?: string } }>();
+    const flashSuccess = pageProps.flash?.success;
+
+    const contactForm = useForm({
+        name: '',
+        email: '',
+        phone: '',
+        help_type: 'software',
+        message: '',
+    });
+
+    /* Map a friendly subject string to the controller's allowed help_type enum. */
+    const mapSubjectToHelpType = (subject: string): string => {
+        const s = subject.toLowerCase();
+        if (s.includes('it support') || s.includes('maintenance') || s.includes('strategy')) return 'software';
+        if (s.includes('customer experience') || s.includes('design')) return 'design';
+        if (s.includes('marketing'))                                    return 'marketing';
+        if (s.includes('training') || s.includes('development'))        return 'team';
+        return 'others';
+    };
+
+    const handleContactSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        contactForm.post('/contact', {
+            preserveScroll: true,
+            onSuccess: () => contactForm.reset('name', 'email', 'phone', 'message'),
+        });
+    };
 
     useEffect(() => {
         const bgSelector = document.querySelectorAll('[data-bg-image]');
@@ -918,7 +972,7 @@ export default function ServicePageTemplate(props: ServicePageProps) {
                             <div className="col-12">
                                 <div className="sec-heading style-3 sec-heading-centered">
                                     <span className="sub-title wow fadeInUp" data-wow-delay=".3s"><i className="tji-box"></i>Our PRICING PLAN</span>
-                                    <h2 className="sec-title text-anim">Our Pricing Plan.</h2>
+                                    <h2 className="sec-title text-anim"></h2>
                                 </div>
                             </div>
                         </div>
@@ -945,7 +999,7 @@ export default function ServicePageTemplate(props: ServicePageProps) {
                                             </ul>
                                         </div>
                                         <div className="pricing-btn">
-                                            <Link className="text-btn" href="/contact">
+                                            <Link className="text-btn" href="/estimate">
                                                 <span className="btn-text"><span>Chose Plan</span></span>
                                                 <span className="btn-icon"><i className="tji-arrow-right-long"></i></span>
                                             </Link>
@@ -976,7 +1030,7 @@ export default function ServicePageTemplate(props: ServicePageProps) {
                                             </ul>
                                         </div>
                                         <div className="pricing-btn">
-                                            <Link className="text-btn" href="/contact">
+                                            <Link className="text-btn" href="/estimate">
                                                 <span className="btn-text"><span>Chose Plan</span></span>
                                                 <span className="btn-icon"><i className="tji-arrow-right-long"></i></span>
                                             </Link>
@@ -1006,7 +1060,7 @@ export default function ServicePageTemplate(props: ServicePageProps) {
                                             </ul>
                                         </div>
                                         <div className="pricing-btn">
-                                            <Link className="text-btn" href="/contact">
+                                            <Link className="text-btn" href="/estimate">
                                                 <span className="btn-text"><span>Chose Plan</span></span>
                                                 <span className="btn-icon"><i className="tji-arrow-right-long"></i></span>
                                             </Link>
@@ -1095,38 +1149,84 @@ export default function ServicePageTemplate(props: ServicePageProps) {
                                         <span className="sub-title"><i className="tji-box"></i>Get in Touch</span>
                                         <h2 className="sec-title title-anim">Drop us a Line Here.</h2>
                                     </div>
-                                    <form id="contact-form-3">
+                                    <form id="contact-form-3" onSubmit={handleContactSubmit} noValidate>
                                         <div className="row wow fadeInUp" data-wow-delay=".5s">
+                                            {(flashSuccess || contactForm.recentlySuccessful) && (
+                                                <div className="col-sm-12">
+                                                    <div
+                                                        className="dawki-form-success"
+                                                        role="status"
+                                                        style={{ marginBottom: '14px' }}
+                                                    >
+                                                        ✓ {flashSuccess || "Thanks — your message has been received. We'll get back to you within 24 hours."}
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             <div className="col-sm-6">
                                                 <div className="form-input">
-                                                    <label className="cf-label">Full Name *</label>
-                                                    <input type="text" name="cfName3" />
+                                                    <label className="cf-label" htmlFor="cf3-name">Full Name *</label>
+                                                    <input
+                                                        id="cf3-name"
+                                                        type="text"
+                                                        name="name"
+                                                        required
+                                                        value={contactForm.data.name}
+                                                        onChange={(e) => contactForm.setData('name', e.target.value)}
+                                                    />
+                                                    {contactForm.errors.name && (
+                                                        <span className="dawki-form-error" style={{ color: '#f87171', fontSize: '12px' }}>{contactForm.errors.name}</span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="col-sm-6">
                                                 <div className="form-input">
-                                                    <label className="cf-label">Email Address *</label>
-                                                    <input type="email" name="cfEmail3" />
+                                                    <label className="cf-label" htmlFor="cf3-email">Email Address *</label>
+                                                    <input
+                                                        id="cf3-email"
+                                                        type="email"
+                                                        name="email"
+                                                        required
+                                                        value={contactForm.data.email}
+                                                        onChange={(e) => contactForm.setData('email', e.target.value)}
+                                                    />
+                                                    {contactForm.errors.email && (
+                                                        <span className="dawki-form-error" style={{ color: '#f87171', fontSize: '12px' }}>{contactForm.errors.email}</span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="col-sm-6">
                                                 <div className="form-input">
-                                                    <label className="cf-label">Phone number *</label>
-                                                    <input type="tel" name="cfPhone3" />
+                                                    <label className="cf-label" htmlFor="cf3-phone">Phone number</label>
+                                                    <input
+                                                        id="cf3-phone"
+                                                        type="tel"
+                                                        name="phone"
+                                                        value={contactForm.data.phone}
+                                                        onChange={(e) => contactForm.setData('phone', e.target.value)}
+                                                    />
+                                                    {contactForm.errors.phone && (
+                                                        <span className="dawki-form-error" style={{ color: '#f87171', fontSize: '12px' }}>{contactForm.errors.phone}</span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="col-sm-6">
                                                 <div className="form-input">
                                                     <div className="tj-nice-select-box">
                                                         <div className="tj-select">
-                                                            <label className="cf-label">Chose a option</label>
-                                                            <select name="cfSubject3">
-                                                                <option value="1">Business Strategy</option>
-                                                                <option value="2">Customer Experience</option>
-                                                                <option value="3">Sustainability and ESG</option>
-                                                                <option value="4">Training and Development</option>
-                                                                <option value="5">IT Support & Maintenance</option>
-                                                                <option value="6">Marketing Strategy</option>
+                                                            <label className="cf-label" htmlFor="cf3-subject">Chose a option</label>
+                                                            <select
+                                                                id="cf3-subject"
+                                                                name="subject"
+                                                                onChange={(e) => contactForm.setData('help_type', mapSubjectToHelpType(e.target.value))}
+                                                                defaultValue="Business Strategy"
+                                                            >
+                                                                <option value="Business Strategy">Business Strategy</option>
+                                                                <option value="Customer Experience">Customer Experience</option>
+                                                                <option value="Sustainability and ESG">Sustainability and ESG</option>
+                                                                <option value="Training and Development">Training and Development</option>
+                                                                <option value="IT Support & Maintenance">IT Support &amp; Maintenance</option>
+                                                                <option value="Marketing Strategy">Marketing Strategy</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -1134,13 +1234,22 @@ export default function ServicePageTemplate(props: ServicePageProps) {
                                             </div>
                                             <div className="col-sm-12">
                                                 <div className="form-input message-input">
-                                                    <label className="cf-label">Message here... *</label>
-                                                    <textarea name="cfMessage3" id="message"></textarea>
+                                                    <label className="cf-label" htmlFor="cf3-message">Message here... *</label>
+                                                    <textarea
+                                                        id="cf3-message"
+                                                        name="message"
+                                                        required
+                                                        value={contactForm.data.message}
+                                                        onChange={(e) => contactForm.setData('message', e.target.value)}
+                                                    ></textarea>
+                                                    {contactForm.errors.message && (
+                                                        <span className="dawki-form-error" style={{ color: '#f87171', fontSize: '12px' }}>{contactForm.errors.message}</span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="submit-btn">
-                                                <button className="tj-primary-btn" type="submit">
-                                                    <span className="btn-text"><span>Send Message</span></span>
+                                                <button className="tj-primary-btn" type="submit" disabled={contactForm.processing}>
+                                                    <span className="btn-text"><span>{contactForm.processing ? 'Sending…' : 'Send Message'}</span></span>
                                                     <span className="btn-icon"><i className="tji-arrow-right-long"></i></span>
                                                 </button>
                                             </div>
