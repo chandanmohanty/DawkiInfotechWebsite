@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Services\LeadForwarder;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -27,6 +28,8 @@ class SettingsController extends Controller
             'settings' => [
                 'gtm_container_id' => (string) Setting::get('gtm_container_id', ''),
                 'gtm_enabled'      => Setting::get('gtm_enabled', '1') === '1',
+                'crm_endpoint_url' => (string) Setting::get('crm_endpoint_url', ''),
+                'crm_enabled'      => Setting::get('crm_enabled', '1') === '1',
             ],
             'site_url' => rtrim(config('app.url', 'http://localhost'), '/'),
         ]);
@@ -37,20 +40,54 @@ class SettingsController extends Controller
         $validated = $request->validate([
             'gtm_container_id' => ['nullable', 'string', 'regex:'.self::GTM_REGEX],
             'gtm_enabled'      => ['required', 'boolean'],
+            'crm_endpoint_url' => ['nullable', 'url', 'max:500'],
+            'crm_enabled'      => ['required', 'boolean'],
         ], [
             'gtm_container_id.regex' => 'GTM ID must look like "GTM-XXXXXXX" (uppercase letters/digits, 6–9 characters after GTM-).',
+            'crm_endpoint_url.url'   => 'CRM endpoint must be a full URL starting with https:// (or http://).',
         ]);
 
         $gtmId = $validated['gtm_container_id'] ?? '';
-        $enabled = (bool) $validated['gtm_enabled'];
+        $gtmEnabled = (bool) $validated['gtm_enabled'];
 
         Setting::set('gtm_container_id', $gtmId);
-        Setting::set('gtm_enabled', $enabled ? '1' : '0');
+        Setting::set('gtm_enabled', $gtmEnabled ? '1' : '0');
+        Setting::set('crm_endpoint_url', $validated['crm_endpoint_url'] ?? '');
+        Setting::set('crm_enabled', $validated['crm_enabled'] ? '1' : '0');
 
         // Keep standalone HTML landing pages in sync (they bypass Laravel).
-        $this->syncStaticLandingPages($enabled ? $gtmId : '');
+        $this->syncStaticLandingPages($gtmEnabled ? $gtmId : '');
 
-        return back()->with('success', 'GTM settings saved.');
+        return back()->with('success', 'Settings saved.');
+    }
+
+    /**
+     * Send a synthetic lead through the LeadForwarder to validate end-to-end
+     * that the CRM endpoint is reachable, accepts our payload, and returns 2xx.
+     * Lets admins prove the integration works without having to fill a real form.
+     */
+    public function testCrm(Request $request, LeadForwarder $forwarder): JsonResponse
+    {
+        $result = $forwarder->send([
+            'name'    => 'Dawki Admin Test',
+            'email'   => 'admin-test@dawkiinfotech.com',
+            'phone'   => '+91 00000 00000',
+            'company' => 'Dawki Infotech',
+            'website' => rtrim(config('app.url', 'http://localhost'), '/'),
+            'stage'   => 'Just curious about a benchmark',
+            'message' => 'This is a synthetic test lead sent from the admin Site Settings page. Safe to ignore or delete.',
+        ], [
+            'form'   => 'admin_test',
+            'source' => 'dawki-admin-panel',
+        ]);
+
+        return response()->json([
+            'ok'        => $result['forwarded'],
+            'reason'    => $result['reason'] ?? 'CRM accepted the test lead.',
+            'status'    => $result['status'],
+            'response'  => $result['response'],
+            'endpoint'  => (string) Setting::get('crm_endpoint_url', ''),
+        ]);
     }
 
     /**
