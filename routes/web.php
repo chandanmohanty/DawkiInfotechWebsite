@@ -152,6 +152,11 @@ Route::prefix('panel')->group(function () {
             return Inertia::render('Panel/Dashboard');
         })->name('panel.dashboard');
 
+        // Site Settings (GTM, etc.)
+        Route::get('/settings', [\App\Http\Controllers\Panel\SettingsController::class, 'index'])->name('panel.settings.index');
+        Route::put('/settings', [\App\Http\Controllers\Panel\SettingsController::class, 'update'])->name('panel.settings.update');
+        Route::post('/settings/verify-gtm', [\App\Http\Controllers\Panel\SettingsController::class, 'verify'])->name('panel.settings.verify-gtm');
+
         // Blog Management Routes
         Route::prefix('blog')->name('panel.blog.')->group(function () {
             // Posts

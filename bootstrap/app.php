@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        // Project uses /panel/login as the sole login route — there is no
+        // "login" named route, so the default redirect crashes. Point the
+        // auth middleware at the panel route explicitly.
+        $middleware->redirectGuestsTo(fn () => '/panel/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
