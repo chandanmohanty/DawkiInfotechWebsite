@@ -83,7 +83,12 @@ const Reveal: React.FC<{ children: React.ReactNode; className?: string; delay?: 
  * Contact Page — modern split layout (hero+logos LEFT, form RIGHT)
  * ============================================================================ */
 export default function Contact() {
-    const { props } = usePage<{ flash?: { success?: string } }>();
+    const { props } = usePage<{
+        flash?: { success?: string };
+        site?: { phone?: string; phoneDigits?: string };
+    }>();
+    const sitePhoneDisplay = props.site?.phone ?? '+91 807 609 6255';
+    const sitePhoneDigits  = props.site?.phoneDigits ?? '918076096255';
     const flashSuccess = props.flash?.success;
 
     const { data, setData, post, processing, errors, reset, recentlySuccessful } = useForm({
@@ -309,12 +314,12 @@ export default function Contact() {
                                                                 ),
                                                             },
                                                             {
-                                                                id: 'design',
-                                                                title: 'UI/UX Design',
-                                                                desc: 'Pixel-perfect product design',
+                                                                id: 'automation',
+                                                                title: 'AI Automations',
+                                                                desc: 'Agents, workflows & integrations',
                                                                 icon: (
                                                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+                                                                        <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 17.5h7M17.5 14v7"/>
                                                                     </svg>
                                                                 ),
                                                             },
@@ -418,7 +423,7 @@ export default function Contact() {
                                         <li><a href="mailto:support@dawkiinfotech.com">support@dawkiinfotech.com</a></li>
                                     </ul>
                                 ) },
-                                { icon: '📞', title: 'Call Us', body: <a href="tel:+918076096255">+91 807 609 6255</a> },
+                                { icon: '📞', title: 'Call Us', body: <a href={`tel:+${sitePhoneDigits}`}>{sitePhoneDisplay}</a> },
                                 { icon: '🕒', title: 'Business Hours', body: <p>Mon-Fri: 10am - 7pm</p> },
                             ].map((item, i) => (
                                 <Reveal key={i} delay={i * 0.08} className="dawki-contact-info-card">

@@ -1,5 +1,5 @@
 import { type FC, type ReactNode, useMemo, useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import FrontendLayout from '@/layouts/FrontendLayout';
 
 /* ============================================================================
@@ -238,6 +238,9 @@ const formatINR = (n: number) =>
     new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n);
 
 const Estimate: FC = () => {
+    const { props } = usePage<{ site?: { phoneDigits?: string } }>();
+    const sitePhoneDigits = props.site?.phoneDigits ?? '918076096255';
+
     const [build, setBuild] = useState<BuildKey>('landing');
     const [extraPages, setExtraPages] = useState(0);
     const [addons, setAddons] = useState<Set<AddonKey>>(new Set());
@@ -280,8 +283,8 @@ const Estimate: FC = () => {
     const whatsappHref = useMemo(() => {
         const summary = summaryLines.map((l) => `• ${l.label}`).join('%0A');
         const msg = `Hi Dawki Infotech,%0A%0AI'd like a quote for:%0A${summary}%0A%0AEstimated total: ₹ ${formatINR(total)}`;
-        return `https://wa.me/918076096255?text=${msg}`;
-    }, [summaryLines, total]);
+        return `https://wa.me/${sitePhoneDigits}?text=${msg}`;
+    }, [summaryLines, total, sitePhoneDigits]);
 
     return (
         <FrontendLayout>

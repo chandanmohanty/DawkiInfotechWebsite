@@ -30,6 +30,7 @@ class SettingsController extends Controller
                 'gtm_enabled'      => Setting::get('gtm_enabled', '1') === '1',
                 'crm_endpoint_url' => (string) Setting::get('crm_endpoint_url', ''),
                 'crm_enabled'      => Setting::get('crm_enabled', '1') === '1',
+                'site_phone'       => (string) Setting::get('site_phone', '+91 807 609 6255'),
             ],
             'site_url' => rtrim(config('app.url', 'http://localhost'), '/'),
         ]);
@@ -42,10 +43,19 @@ class SettingsController extends Controller
             'gtm_enabled'      => ['required', 'boolean'],
             'crm_endpoint_url' => ['nullable', 'url', 'max:500'],
             'crm_enabled'      => ['required', 'boolean'],
+            // Phone must contain at least 8 digits so tel:/wa.me URLs stay valid.
+            // Allowed display characters: digits, +, space, dash, parens, dot.
+            'site_phone'       => ['required', 'string', 'max:32', 'regex:/^[\d\s+\-().]{8,32}$/'],
         ], [
             'gtm_container_id.regex' => 'GTM ID must look like "GTM-XXXXXXX" (uppercase letters/digits, 6–9 characters after GTM-).',
             'crm_endpoint_url.url'   => 'CRM endpoint must be a full URL starting with https:// (or http://).',
+            'site_phone.regex'       => 'Phone may contain digits, +, spaces, dashes, parentheses and dots. Minimum 8 characters.',
         ]);
+
+        // Sanity check the dial digits — at least 8 numeric characters.
+        if (strlen(preg_replace('/\D+/', '', $validated['site_phone'])) < 8) {
+            return back()->withErrors(['site_phone' => 'Phone must contain at least 8 digits.'])->withInput();
+        }
 
         $gtmId = $validated['gtm_container_id'] ?? '';
         $gtmEnabled = (bool) $validated['gtm_enabled'];
@@ -54,6 +64,7 @@ class SettingsController extends Controller
         Setting::set('gtm_enabled', $gtmEnabled ? '1' : '0');
         Setting::set('crm_endpoint_url', $validated['crm_endpoint_url'] ?? '');
         Setting::set('crm_enabled', $validated['crm_enabled'] ? '1' : '0');
+        Setting::set('site_phone', trim($validated['site_phone']));
 
         // Keep standalone HTML landing pages in sync (they bypass Laravel).
         $this->syncStaticLandingPages($gtmEnabled ? $gtmId : '');

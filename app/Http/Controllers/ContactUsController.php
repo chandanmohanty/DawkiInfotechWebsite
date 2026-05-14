@@ -24,7 +24,7 @@ class ContactUsController extends Controller
             'name'      => ['required', 'string', 'max:120'],
             'email'     => ['required', 'email', 'max:191'],
             'phone'     => ['nullable', 'string', 'max:32'],
-            'help_type' => ['nullable', Rule::in(['team', 'software', 'design', 'marketing', 'others'])],
+            'help_type' => ['nullable', Rule::in(['team', 'software', 'automation', 'marketing', 'others'])],
             'message'   => ['required', 'string', 'max:5000'],
         ]);
 

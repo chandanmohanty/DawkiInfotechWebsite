@@ -1,7 +1,19 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import FrontendLayout from '@/layouts/FrontendLayout';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
+
+/* ===========================================================================
+ * Tiny helper to substitute {{phone}} / {{phoneDigits}} placeholders in
+ * module-level data with the admin-controlled phone shared via Inertia.
+ * =========================================================================== */
+const useSitePhone = () => {
+    const { props } = usePage<{ site?: { phone?: string; phoneDigits?: string } }>();
+    const display = props.site?.phone ?? '+91 807 609 6255';
+    const digits  = props.site?.phoneDigits ?? '918076096255';
+    const fill = (s: string) => s.replace(/\{\{phone\}\}/g, display).replace(/\{\{phoneDigits\}\}/g, digits);
+    return { display, digits, fill };
+};
 
 /* ===========================================================================
  * Shared count-up
@@ -58,7 +70,7 @@ const FAQS: FaqItem[] = [
     {
         cat: 'general',
         q: 'How do I get started with Dawki Infotech?',
-        a: 'Reach out via our contact form or call +91 807 609 6255. We\'ll set up a free 30-minute discovery call to understand your goals, scope your project, and share next steps within 48 hours.',
+        a: 'Reach out via our contact form or call {{phone}}. We\'ll set up a free 30-minute discovery call to understand your goals, scope your project, and share next steps within 48 hours.',
     },
 
     // Marketing
@@ -167,6 +179,7 @@ const CATEGORY_STYLE: Record<FaqItem['cat'], { bg: string; border: string; color
  * Categorized FAQ section with search + tabs + accordion
  * =========================================================================== */
 const FaqAccordion: React.FC = () => {
+    const { fill } = useSitePhone();
     const [activeCat, setActiveCat] = useState<typeof CATEGORIES[number]['key']>('all');
     const [search, setSearch] = useState('');
     const [openIdx, setOpenIdx] = useState<number | null>(0);
@@ -288,7 +301,7 @@ const FaqAccordion: React.FC = () => {
                                             exit={{ height: 0, opacity: 0 }}
                                             transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
                                         >
-                                            <div className="dawki-faq-item-body-inner">{item.a}</div>
+                                            <div className="dawki-faq-item-body-inner">{fill(item.a)}</div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -418,8 +431,8 @@ const HELP_CARDS = [
     {
         title: 'Phone Support',
         desc: 'Talk to a human. Our team is available 9 AM – 9 PM IST on weekdays, with 24/7 on-call for active clients.',
-        cta: '+91 807 609 6255',
-        href: 'tel:+918076096255',
+        cta: '{{phone}}',
+        href: 'tel:+{{phoneDigits}}',
         a: '#22c55e', b: '#06b6d4', glow: 'rgba(34, 197, 94, 0.5)', color: '#86efac',
         icon: (
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -443,7 +456,9 @@ const HELP_CARDS = [
     },
 ];
 
-const FaqHelp: React.FC = () => (
+const FaqHelp: React.FC = () => {
+    const { fill } = useSitePhone();
+    return (
     <section className="dawki-faq-help">
         <div className="container">
             <div className="dawki-faq-help-heading">
@@ -469,7 +484,8 @@ const FaqHelp: React.FC = () => (
                     show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
                 }}
             >
-                {HELP_CARDS.map((card) => {
+                {HELP_CARDS.map((rawCard) => {
+                    const card = { ...rawCard, href: fill(rawCard.href), cta: fill(rawCard.cta) };
                     const isExternal = card.href.startsWith('mailto:') || card.href.startsWith('tel:');
                     const inner = (
                         <>
@@ -530,7 +546,8 @@ const FaqHelp: React.FC = () => (
             </motion.div>
         </div>
     </section>
-);
+    );
+};
 
 /* ===========================================================================
  * Page

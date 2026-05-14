@@ -1,9 +1,16 @@
 import { Link, usePage } from '@inertiajs/react';
 import React, { useEffect } from 'react';
 
+interface SiteProps {
+    site?: { phone?: string; phoneDigits?: string };
+}
+
 const Header: React.FC = () => {
-    // Current URL from Inertia (kept in sync on every navigation)
-    const { url } = usePage();
+    // Current URL + site props from Inertia (kept in sync on every navigation)
+    const page = usePage<SiteProps>();
+    const { url } = page;
+    const sitePhoneDisplay = page.props.site?.phone ?? '+91 807 609 6255';
+    const sitePhoneDigits  = page.props.site?.phoneDigits ?? '918076096255';
     // Strip query/hash and normalize trailing slash
     const path = (url.split('?')[0].split('#')[0] || '/').replace(/\/$/, '') || '/';
 
@@ -199,9 +206,9 @@ const Header: React.FC = () => {
                                             <div className="feature-content">
                                                 <h3 className="title" style={{ fontSize: '40px !important' }}>Innovative</h3>
                                                 <span>Driving Digital Transformation with Smart, Scalable Solutions</span>
-                                                <a className="read-more feature-contact" href="tel:8076096255">
+                                                <a className="read-more feature-contact" href={`tel:+${sitePhoneDigits}`}>
                                                     <i className="tji-phone-3"></i>
-                                                    <span>+91 807 609 6255</span>
+                                                    <span>{sitePhoneDisplay}</span>
                                                 </a>
                                             </div>
                                             <div className="feature-images">
@@ -369,7 +376,7 @@ const Header: React.FC = () => {
                             <div className="contact-info">
                                 <div className="contact-item">
                                     <span className="subtitle">Phone</span>
-                                    <a className="contact-link" href="tel:+918076096255">+91 807 609 6255</a>
+                                    <a className="contact-link" href={`tel:+${sitePhoneDigits}`}>{sitePhoneDisplay}</a>
                                 </div>
                                 <div className="contact-item">
                                     <span className="subtitle">Email</span>
@@ -419,7 +426,7 @@ const Header: React.FC = () => {
                             <div className="contact-info">
                                 <div className="contact-item">
                                     <span className="subtitle">Phone</span>
-                                    <a className="contact-link" href="tel:8076096255">+91 807 609 6255</a>
+                                    <a className="contact-link" href={`tel:+${sitePhoneDigits}`}>{sitePhoneDisplay}</a>
                                 </div>
                                 <div className="contact-item">
                                     <span className="subtitle">Email</span>

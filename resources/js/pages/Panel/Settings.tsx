@@ -8,6 +8,7 @@ interface PageProps {
         gtm_enabled: boolean;
         crm_endpoint_url: string;
         crm_enabled: boolean;
+        site_phone: string;
     };
     site_url: string;
     flash?: { success?: string; error?: string };
@@ -47,7 +48,14 @@ export default function Settings() {
         gtm_enabled: !!settings.gtm_enabled,
         crm_endpoint_url: settings.crm_endpoint_url || '',
         crm_enabled: !!settings.crm_enabled,
+        site_phone: settings.site_phone || '',
     });
+
+    const phoneDigits = useMemo(
+        () => (data.site_phone || '').replace(/\D+/g, ''),
+        [data.site_phone],
+    );
+    const isValidPhone = phoneDigits.length >= 8 && /^[\d\s+\-().]{8,32}$/.test(data.site_phone || '');
 
     const [verifyUrl, setVerifyUrl] = useState(site_url || '');
     const [verifying, setVerifying] = useState(false);
@@ -187,8 +195,78 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
                 )}
 
-                {/* === GTM + CRM FORM === */}
+                {/* === SETTINGS FORM === */}
                 <form onSubmit={handleSubmit} className="space-y-6">
+
+                {/* === CONTACT INFO CARD === */}
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <div className="flex flex-wrap items-start justify-between gap-4 border-b border-gray-200 bg-gradient-to-br from-emerald-50/60 to-white p-6">
+                        <div className="flex items-start gap-4">
+                            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm">
+                                <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-semibold text-gray-900">Contact Information</h2>
+                                <p className="mt-1 text-sm text-gray-600">
+                                    The phone number shown across the public site — header, footer, contact page, FAQ CTA, WhatsApp button on the Estimate page. One change here updates them all.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid gap-6 p-6 md:grid-cols-3">
+                        <div className="md:col-span-2">
+                            <label htmlFor="site_phone" className="block text-sm font-medium text-gray-700">
+                                Phone number
+                            </label>
+                            <div className="mt-1.5">
+                                <input
+                                    id="site_phone"
+                                    type="tel"
+                                    autoComplete="off"
+                                    value={data.site_phone}
+                                    onChange={(e) => setData('site_phone', e.target.value)}
+                                    placeholder="+91 807 609 6255"
+                                    className={`block w-full rounded-lg border bg-white px-3.5 py-2.5 font-mono text-sm tracking-wide shadow-sm transition focus:outline-none focus:ring-2 ${
+                                        !isValidPhone && data.site_phone
+                                            ? 'border-red-300 text-red-900 focus:border-red-500 focus:ring-red-200'
+                                            : 'border-gray-300 text-gray-900 focus:border-emerald-500 focus:ring-emerald-200'
+                                    }`}
+                                />
+                            </div>
+                            {!isValidPhone && data.site_phone && (
+                                <p className="mt-1.5 text-xs text-red-600">
+                                    Phone must be 8–32 chars and contain at least 8 digits. Allowed: digits, +, spaces, dashes, parens, dots.
+                                </p>
+                            )}
+                            {serverErrors.site_phone && (
+                                <p className="mt-1.5 text-xs text-red-600">{serverErrors.site_phone}</p>
+                            )}
+                            <p className="mt-2 text-xs text-gray-500">
+                                Type it the way visitors should see it. We derive the digits-only version (<code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs">{phoneDigits || '—'}</code>) automatically for <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs">tel:</code> and <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs">wa.me/</code> URLs.
+                            </p>
+                        </div>
+
+                        {/* Live preview */}
+                        <div>
+                            <span className="block text-sm font-medium text-gray-700">How it appears</span>
+                            <div className="mt-1.5 rounded-lg border border-emerald-200 bg-emerald-50/50 px-4 py-3">
+                                <div className="flex items-center gap-2 text-sm font-semibold text-emerald-800">
+                                    <svg className="h-4 w-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                    </svg>
+                                    {data.site_phone || '—'}
+                                </div>
+                                <p className="mt-2 text-xs text-emerald-700/80 break-all">
+                                    Click target: <code className="font-mono">tel:+{phoneDigits || '—'}</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/* === END CONTACT INFO CARD === */}
 
                 {/* === GTM CARD === */}
                 <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -550,7 +628,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             )}
                             <button
                                 type="submit"
-                                disabled={processing || !isValidId || !isValidCrmUrl}
+                                disabled={processing || !isValidId || !isValidCrmUrl || !isValidPhone}
                                 className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-indigo-700 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {processing ? 'Saving…' : 'Save all settings'}
