@@ -30826,6 +30826,25 @@ START: Blog CSS
   margin: 0 !important;
 }
 
+/* Office phone — display-only row below the address. Mint accent matches
+   the palette used in the admin panel Contact card so the brand cue stays
+   consistent. Non-interactive: click-to-call was intentionally removed. */
+.dawki-footer-office-phone {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px !important;
+  color: #5eead4 !important;          /* mint */
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.01em;
+}
+.dawki-footer-office-phone svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
 @media (max-width: 575px) {
   .dawki-footer-offices { padding-top: 18px; padding-bottom: 30px; }
   .dawki-footer-offices::after { margin-top: 30px; }
@@ -60222,4 +60241,18 @@ main.site-main > section:last-child {
 .tj-faq.style-2 .accordion-item.active .accordion-body .faq-text p {
     color: rgba(255, 255, 255, 0.92) !important;
 }
+
+/* === WOW.js safety-net ===
+   wow.css sets `.wow { visibility: hidden }` and the animation makes it
+   visible. Inertia (SPA) navigation between pages doesn't re-trigger
+   WOW.init(), so .wow elements that scroll into view AFTER the first page
+   load stay invisible. The footer columns showed this symptom on
+   /contact: elements rendered but invisible, leaving a tall empty void.
+   Forcing visibility:visible on every .wow element is harmless on the
+   first paint (the keyframes still play) and fixes every subsequent
+   client-side route change. */
+.wow {
+    visibility: visible !important;
+}
+/* === END WOW safety-net === */
 /* === END FAQ visibility === */
