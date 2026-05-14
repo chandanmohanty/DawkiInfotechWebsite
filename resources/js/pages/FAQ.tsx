@@ -555,7 +555,13 @@ const FaqHelp: React.FC = () => {
 export default function FAQ() {
     return (
         <FrontendLayout>
-            <Head title="FAQ — Dawki Infotech" />
+            <Head title="FAQ — Dawki Infotech">
+                <meta name="description" content="Answers to the most common questions about working with Dawki Infotech — engagement models, timelines, pricing, tech stack, and ownership of work." head-key="description" />
+                <meta property="og:title" content="FAQ — Dawki Infotech" head-key="og:title" />
+                <meta property="og:description" content="Engagement models, timelines, pricing, tech stack — common questions answered." head-key="og:description" />
+                <meta name="twitter:title" content="FAQ — Dawki Infotech" head-key="twitter:title" />
+                <meta name="twitter:description" content="Engagement models, timelines, pricing, tech stack — common questions answered." head-key="twitter:description" />
+            </Head>
 
             <main id="primary" className="site-main">
                 <div className="space-for-header"></div>

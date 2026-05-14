@@ -147,7 +147,13 @@ export default function Portfolio() {
 
     return (
         <FrontendLayout>
-            <Head title="Portfolio — Dawki Infotech" />
+            <Head title="Portfolio — Dawki Infotech">
+                <meta name="description" content="A selection of software, mobile, AI, and growth-marketing projects built by Dawki Infotech for clients across India, the US, the UK, and the UAE." head-key="description" />
+                <meta property="og:title" content="Portfolio — Dawki Infotech" head-key="og:title" />
+                <meta property="og:description" content="Software, mobile, AI, and growth projects we've shipped for clients worldwide." head-key="og:description" />
+                <meta name="twitter:title" content="Portfolio — Dawki Infotech" head-key="twitter:title" />
+                <meta name="twitter:description" content="Software, mobile, AI, and growth projects we've shipped for clients worldwide." head-key="twitter:description" />
+            </Head>
 
             <main id="primary" className="site-main">
                 <div className="space-for-header"></div>

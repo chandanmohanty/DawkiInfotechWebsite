@@ -485,7 +485,13 @@ const About: React.FC = () => {
 
     return (
         <FrontendLayout>
-            <Head title="About Us | Dawki Infotech" />
+            <Head title="About Us | Dawki Infotech">
+                <meta name="description" content="Dawki Infotech is a senior team of software engineers, AI specialists, and growth marketers headquartered in Delhi with offices in New York, London, and Dubai." head-key="description" />
+                <meta property="og:title" content="About Us | Dawki Infotech" head-key="og:title" />
+                <meta property="og:description" content="Senior engineers, AI specialists, and growth marketers — headquartered in Delhi with offices in New York, London, and Dubai." head-key="og:description" />
+                <meta name="twitter:title" content="About Us | Dawki Infotech" head-key="twitter:title" />
+                <meta name="twitter:description" content="Senior engineers, AI specialists, and growth marketers — headquartered in Delhi with offices in New York, London, and Dubai." head-key="twitter:description" />
+            </Head>
             <main id="primary" className="site-main">
 
                 <div className="space-for-header"></div>

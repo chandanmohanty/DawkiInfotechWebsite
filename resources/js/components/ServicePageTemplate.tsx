@@ -97,6 +97,10 @@ export type SvcProduct = {
 
 export interface ServicePageProps {
     pageTitle: string;
+    /** Optional per-page <meta name="description"> override. When not set,
+     *  the template derives one from `heroSubtitle` so every service page
+     *  gets a sensible, unique description without needing per-page wiring. */
+    metaDescription?: string;
     breadcrumbCategory: string;
     breadcrumbCategoryHref?: string;
     heroPill: string;
@@ -278,6 +282,7 @@ const ServicesTimeline: React.FC<{ items: SvcCard[] }> = ({ items }) => {
 export default function ServicePageTemplate(props: ServicePageProps) {
     const {
         pageTitle,
+        metaDescription,
         breadcrumbCategory,
         breadcrumbCategoryHref = '/about',
         heroPill,
@@ -430,9 +435,22 @@ export default function ServicePageTemplate(props: ServicePageProps) {
         }).catch(() => {});
     }, []);
 
+    // Derive a per-page meta description so every service page tells search
+    // engines something specific. Falls back to a sensible composition of
+    // pageTitle + heroSubtitle when no explicit override is supplied.
+    const computedDescription = (metaDescription
+        || `${pageTitle} — ${heroSubtitle}`
+    ).slice(0, 320);
+
     return (
         <FrontendLayout>
-            <Head title={pageTitle} />
+            <Head title={pageTitle}>
+                <meta name="description" content={computedDescription} head-key="description" />
+                <meta property="og:title" content={`${pageTitle} | Dawki Infotech`} head-key="og:title" />
+                <meta property="og:description" content={computedDescription} head-key="og:description" />
+                <meta name="twitter:title" content={`${pageTitle} | Dawki Infotech`} head-key="twitter:title" />
+                <meta name="twitter:description" content={computedDescription} head-key="twitter:description" />
+            </Head>
             <main id="primary" className="site-main">
                 <div className="space-for-header"></div>
 

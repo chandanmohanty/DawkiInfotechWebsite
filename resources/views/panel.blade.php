@@ -6,6 +6,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Admin Panel">
+    {{-- Admin panel must never be indexed. Belt-and-braces: robots meta here +
+         Disallow: /panel/ in /robots.txt + no public links into /panel/*. --}}
+    <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+    <meta name="referrer" content="no-referrer">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- Google Tag Manager — shared via AppServiceProvider, admin-controlled. --}}

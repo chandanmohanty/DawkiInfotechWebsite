@@ -1,2 +1,24 @@
+# Dawki Infotech — robots policy
+# Allows search engines to crawl the public site, blocks admin / API surfaces
+# and ad parameters that create duplicate-content traps.
+
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /panel/
+Disallow: /api/
+Disallow: /build/
+Disallow: /*?utm_*
+Disallow: /*?fbclid=
+Disallow: /*?gclid=
+
+# Bad bots — refuse outright (saves bandwidth / CPU).
+User-agent: AhrefsBot
+Disallow: /
+User-agent: SemrushBot
+Disallow: /
+User-agent: MJ12bot
+Disallow: /
+User-agent: DotBot
+Disallow: /
+
+Sitemap: https://dawkiinfotech.com/sitemap.xml

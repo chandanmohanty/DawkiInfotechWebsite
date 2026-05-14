@@ -68,7 +68,13 @@ export default function BlogIndex() {
 
     return (
         <FrontendLayout>
-            <Head title="Blog — Dawki Infotech" />
+            <Head title="Blog — Dawki Infotech">
+                <meta name="description" content="Engineering, AI, and growth marketing essays from the Dawki Infotech team — case studies, technical guides, and field notes from building software for clients across India, US, UK, and UAE." head-key="description" />
+                <meta property="og:title" content="Blog — Dawki Infotech" head-key="og:title" />
+                <meta property="og:description" content="Engineering, AI, and growth marketing essays from the Dawki Infotech team." head-key="og:description" />
+                <meta name="twitter:title" content="Blog — Dawki Infotech" head-key="twitter:title" />
+                <meta name="twitter:description" content="Engineering, AI, and growth marketing essays from the Dawki Infotech team." head-key="twitter:description" />
+            </Head>
 
             <main id="primary" className="site-main">
                 <div className="space-for-header"></div>

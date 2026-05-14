@@ -7,9 +7,16 @@ interface IndustryPageProps {
 }
 
 const IndustryTemplate: React.FC<IndustryPageProps> = ({ title }) => {
+    const desc = `${title} solutions by Dawki Infotech — custom software, integrations, and growth engines purpose-built for ${title.toLowerCase()} businesses across India, the US, the UK, and the UAE.`;
     return (
         <FrontendLayout>
-            <Head title={`${title} | Dawki Infotech`} />
+            <Head title={`${title} | Dawki Infotech`}>
+                <meta name="description" content={desc} head-key="description" />
+                <meta property="og:title" content={`${title} | Dawki Infotech`} head-key="og:title" />
+                <meta property="og:description" content={desc} head-key="og:description" />
+                <meta name="twitter:title" content={`${title} | Dawki Infotech`} head-key="twitter:title" />
+                <meta name="twitter:description" content={desc} head-key="twitter:description" />
+            </Head>
             <main id="primary" className="site-main">
                 <div className="space-for-header"></div>
                 {/* start: Breadcrumb Section */}

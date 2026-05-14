@@ -288,7 +288,13 @@ const Estimate: FC = () => {
 
     return (
         <FrontendLayout>
-            <Head title="Estimate Project Cost | Dawki Infotech" />
+            <Head title="Estimate Project Cost | Dawki Infotech">
+                <meta name="description" content="Get a live cost estimate for your software, mobile app, e-commerce, SaaS, or CRM project in under 60 seconds. Transparent pricing, no obligation." head-key="description" />
+                <meta property="og:title" content="Estimate Project Cost | Dawki Infotech" head-key="og:title" />
+                <meta property="og:description" content="Live cost estimate for your software project in under 60 seconds. Transparent pricing, no obligation." head-key="og:description" />
+                <meta name="twitter:title" content="Estimate Project Cost | Dawki Infotech" head-key="twitter:title" />
+                <meta name="twitter:description" content="Live cost estimate for your software project in under 60 seconds." head-key="twitter:description" />
+            </Head>
             <main id="primary" className="site-main">
                 <div className="space-for-header"></div>
 

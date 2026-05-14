@@ -2904,7 +2904,13 @@ export const Welcome: FC = () => {
 
     return (
         <FrontendLayout>
-            <Head title="Dawki Infotech | Software Development, Marketing & Automation Experts" />
+            <Head title="Dawki Infotech | Software Development, Marketing & Automation Experts">
+                <meta name="description" content="Dawki Infotech builds custom software, AI automations, and growth engines for businesses across India, the US, the UK, and the UAE. Senior teams, transparent pricing, measurable outcomes." head-key="description" />
+                <meta property="og:title" content="Dawki Infotech | Software Development, Marketing & Automation Experts" head-key="og:title" />
+                <meta property="og:description" content="Custom software, AI automation, and digital marketing built by a senior team across India, US, UK and UAE." head-key="og:description" />
+                <meta name="twitter:title" content="Dawki Infotech | Software Development, Marketing & Automation Experts" head-key="twitter:title" />
+                <meta name="twitter:description" content="Custom software, AI automation, and digital marketing built by a senior team across India, US, UK and UAE." head-key="twitter:description" />
+            </Head>
             <main id="primary" className="site-main">
                 <div className="space-for-header"></div>
 

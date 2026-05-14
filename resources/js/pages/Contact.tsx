@@ -125,7 +125,13 @@ export default function Contact() {
 
     return (
         <FrontendLayout>
-            <Head title="Contact Us — Dawki Infotech" />
+            <Head title="Contact Us — Dawki Infotech">
+                <meta name="description" content="Talk to a senior strategist at Dawki Infotech about custom software, AI automation, or digital marketing. Free 30-minute discovery call, response within 24 hours." head-key="description" />
+                <meta property="og:title" content="Contact Us — Dawki Infotech" head-key="og:title" />
+                <meta property="og:description" content="Talk to a senior strategist about custom software, AI automation, or digital marketing. Free 30-minute discovery call." head-key="og:description" />
+                <meta name="twitter:title" content="Contact Us — Dawki Infotech" head-key="twitter:title" />
+                <meta name="twitter:description" content="Talk to a senior strategist about custom software, AI automation, or digital marketing." head-key="twitter:description" />
+            </Head>
 
             <main id="primary" className="site-main">
                 <div className="space-for-header"></div>
