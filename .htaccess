@@ -15,6 +15,21 @@
 # public_html/.htaccess automatically — nothing to hand-place on the server.
 # =============================================================================
 
+# Disable LiteSpeed full-page cache (LSCache).
+#
+# This is a server-rendered Inertia app whose HTML changes based on
+# admin-controlled settings (GTM container, site phone, CRM endpoint).
+# LSCache snapshots the whole HTML response and serves it without ever
+# running Laravel — so a snapshot taken before a setting changed keeps
+# serving stale markup until someone manually purges. That's exactly why
+# the GTM tag "wasn't detected": the homepage was cached blank.
+#
+# Laravel's own config/route/view/DB caches give the performance; a dumb
+# HTML-snapshot layer on top of a dynamic app only causes correctness bugs.
+<IfModule LiteSpeed>
+    CacheLookup off
+</IfModule>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
