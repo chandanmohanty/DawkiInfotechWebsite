@@ -1,0 +1,48 @@
+# =============================================================================
+# Dawki Infotech — root .htaccess
+# =============================================================================
+# This Laravel application is git-deployed directly into public_html/, but
+# Laravel's real web root is the public/ subfolder and Hostinger does NOT let
+# you change the document root on Cloud / Web / WordPress plans.
+#
+# So this file does two jobs:
+#   1. Transparently route every request into public/ (Laravel's front
+#      controller in public/index.php then handles routing as normal).
+#   2. Refuse direct web access to the project internals (.env, .git,
+#      composer files, artisan, deploy.sh, source folders).
+#
+# It ships in the repo so a `git pull` / Hostinger auto-deploy puts it at
+# public_html/.htaccess automatically — nothing to hand-place on the server.
+# =============================================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Let Let's Encrypt / ACME SSL challenges through untouched.
+    RewriteRule ^\.well-known/ - [L]
+
+    # Route every request into public/.
+    #
+    # REDIRECT_STATUS is empty on the initial external request and gets set
+    # ("200") after the internal rewrite, so this rule fires exactly once —
+    # this is the loop-safe guard for the "app in web root, can't move
+    # docroot" pattern. A naive `RewriteCond %{REQUEST_URI} !^/public` loops
+    # because REQUEST_URI keeps the original path across internal redirects.
+    RewriteCond %{ENV:REDIRECT_STATUS} ^$
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Defense-in-depth: hard-deny dotfiles and project files even if mod_rewrite
+# is ever disabled. (With the rewrite active, /.env already 404s because it
+# resolves to public/.env which doesn't exist — this is the belt to that
+# rewrite's braces.)
+<FilesMatch "^\.(env|git|gitignore|gitattributes|editorconfig)">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(composer\.(json|lock)|package(-lock)?\.json|artisan|phpunit\.xml|vite\.config\.(js|ts)|tsconfig\.json|eslint\.config\.js|postcss\.config\.js|deploy\.sh|README\.md|pint\.json|boost\.json)$">
+    Require all denied
+</FilesMatch>
+
+# Never serve a directory index of the project root.
+Options -Indexes
