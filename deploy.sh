@@ -208,6 +208,24 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# Application key — self-healing
+# -----------------------------------------------------------------------------
+# A fresh git clone has no usable APP_KEY (it's gitignored in .env and the
+# committed .env.example ships it blank). Without this guard the very first
+# deploy 500s with "No application encryption key has been specified".
+step "Verifying application key"
+if grep -qE '^APP_KEY=base64:.+' .env; then
+    ok "APP_KEY already set"
+else
+    warn "APP_KEY missing or blank — generating one"
+    # key:generate replaces an existing APP_KEY= line; make sure the line
+    # exists first (some hand-edited .env files drop it entirely).
+    grep -qE '^APP_KEY=' .env || run bash -c "echo 'APP_KEY=' >> .env"
+    run "$PHP_BIN" artisan key:generate --force
+    ok "Fresh APP_KEY written to .env"
+fi
+
+# -----------------------------------------------------------------------------
 # Database
 # -----------------------------------------------------------------------------
 if [ "$SKIP_MIGRATE" -eq 0 ]; then
