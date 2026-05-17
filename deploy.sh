@@ -116,6 +116,30 @@ trap on_error ERR
 cd "$APP_ROOT"
 
 # -----------------------------------------------------------------------------
+# .env protection
+# -----------------------------------------------------------------------------
+# .env is gitignored (secrets must not be in the repo). Hostinger's native
+# Git auto-deploy re-checks-out the working tree and DELETES untracked files
+# on every push — which silently wipes .env and 500s the site.
+#
+# Defence: keep a copy in $HOME (outside public_html, never touched by git).
+# Restore from it if .env went missing; refresh it whenever .env is present.
+ENV_BACKUP="${ENV_BACKUP:-$HOME/dawki-env-backup}"
+
+step "Securing .env"
+if [ -f .env ]; then
+    cp -f .env "$ENV_BACKUP" && chmod 600 "$ENV_BACKUP"
+    ok ".env present — backup refreshed at $ENV_BACKUP"
+elif [ -f "$ENV_BACKUP" ]; then
+    cp -f "$ENV_BACKUP" .env
+    warn ".env was missing (git deploy wiped it) — restored from $ENV_BACKUP"
+else
+    fail "No .env and no backup at $ENV_BACKUP."
+    fail "Create .env once, then: cp .env $ENV_BACKUP"
+    exit 1
+fi
+
+# -----------------------------------------------------------------------------
 # Pre-flight checks
 # -----------------------------------------------------------------------------
 step "Pre-flight checks"
@@ -127,7 +151,7 @@ fi
 ok "Laravel app root confirmed at $APP_ROOT"
 
 if [ ! -f .env ]; then
-    fail "No .env file. Copy .env.example and fill in DB / APP_URL before deploying."
+    fail "No .env file even after restore attempt. Aborting."
     exit 1
 fi
 ok ".env present"
